@@ -49,32 +49,35 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex min-h-screen bg-gray-100 overflow-hidden">
       <Sidebar />
       <div className="flex-1 flex flex-col">
         <Topbar />
-        <main className="flex-1 p-6 overflow-y-auto">
-          <div className="bg-white p-4 rounded-lg shadow mb-6">
-            <textarea
-              value={newPost}
-              onChange={(e) => setNewPost(e.target.value)}
-              placeholder="What's on your mind?"
-              className="w-full p-2 border rounded mb-2"
-            />
-            <div className="flex gap-2">
-              <button onClick={handlePost} className="bg-pulse text-white px-4 py-2 rounded hover:bg-pulse/80">
-                Post
-              </button>
-              <button onClick={() => setNewPost("")} className="px-4 py-2 border rounded">
-                Cancel
-              </button>
-            </div>
-          </div>
+        <main className="flex-1 p-4 md:p-6 overflow-y-auto">
+  <div className="max-w-2xl mx-auto w-full">
+    <div className="bg-white p-4 rounded-lg shadow mb-6">
+      <textarea
+        value={newPost}
+        onChange={(e) => setNewPost(e.target.value)}
+        placeholder="What's on your mind?"
+        className="w-full p-2 border rounded mb-2"
+      />
+      <div className="flex gap-2">
+        <button onClick={handlePost} className="bg-pulse text-white px-4 py-2 rounded hover:bg-pulse/80">
+          Post
+        </button>
+        <button onClick={() => setNewPost("")} className="px-4 py-2 border rounded">
+          Cancel
+        </button>
+      </div>
+    </div>
 
-          {posts.map((p) => (
-            <PostCard key={p.id} post={p} onLike={handleLike} onAddComment={handleAddComment} />
-          ))}
-        </main>
+    {posts.map((p) => (
+      <PostCard key={p.id} post={p} onLike={handleLike} onAddComment={handleAddComment} />
+    ))}
+  </div>
+</main>
+
       </div>
     </div>
   );
