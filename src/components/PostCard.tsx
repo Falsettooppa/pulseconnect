@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-type Comment = { id: string; author: string; text: string };
+export type Comment = { id: string; author: string; text: string };
 
 export type Post = {
   id: string;
@@ -32,7 +32,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, onLike, onAddComment }) => {
     <div className="bg-white rounded-lg shadow p-4 mb-4">
       <div className="flex items-start gap-3">
         <div className="w-10 h-10 rounded-full bg-pulse flex items-center justify-center text-white font-semibold">
-          {post.author.charAt(0) || "U"}
+          {post.author?.charAt(0) ?? "U"}
         </div>
 
         <div className="flex-1">
@@ -43,6 +43,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, onLike, onAddComment }) => {
             <button
               onClick={() => onLike(post.id)}
               className="flex items-center gap-2 px-2 py-1 rounded hover:bg-gray-100"
+              aria-label={`Like post by ${post.author}`}
             >
               <span>❤️</span>
               <span>{post.likes}</span>
@@ -51,6 +52,8 @@ const PostCard: React.FC<PostCardProps> = ({ post, onLike, onAddComment }) => {
             <button
               onClick={() => setShowComments((s) => !s)}
               className="flex items-center gap-2 text-gray-600 hover:text-gray-800"
+              aria-expanded={showComments}
+              aria-label={`Toggle comments for post by ${post.author}`}
             >
               <span>💬</span>
               <span>{post.comments.length}</span>

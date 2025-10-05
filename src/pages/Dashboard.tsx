@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Sidebar from "../components/Sidebar";
 import Topbar from "../components/Topbar";
-import PostCard, { Post } from "../components/PostCard";
+import PostCard, { type Post } from "../components/PostCard";
 
 type Comment = { id: string; author: string; text: string };
 
