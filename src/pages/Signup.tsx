@@ -1,91 +1,156 @@
 import { useState, FormEvent } from "react";
 import { supabase } from "../lib/supabaseClient";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function Signup() {
-  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [mode, setMode] = useState<"password" | "magic">("password");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
-  const handleSignup = async (e: FormEvent) => {
+  // Regular email + password signup
+  const handleEmailSignup = async (e: FormEvent) => {
     e.preventDefault();
-    setError(null);
+    setLoading(true);
+    const { error } = await supabase.auth.signUp({ email, password });
+    setLoading(false);
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-      });
-
-      if (error) throw error;
-
-      alert("Signup successful! Please check your email for verification.");
+    if (error) {
+      alert(error.message);
+    } else {
+      alert("Signup successful! Please verify your email.");
       navigate("/login");
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
     }
   };
 
+  // Passwordless / Magic link signup
+  const handleMagicLink = async (e: FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: `${window.location.origin}/login` },
+    });
+    setLoading(false);
+
+    if (error) {
+      alert(error.message);
+    } else {
+      alert("Magic link sent! Please check your inbox to continue.");
+    }
+  };
+
+  // OAuth signup (Google, GitHub, Twitter)
+  const handleOAuth = async (provider: "google" | "github" | "twitter") => {
+    const { error } = await supabase.auth.signInWithOAuth({ provider });
+    if (error) alert(error.message);
+  };
+
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="bg-white shadow-lg rounded-2xl p-8 w-full max-w-md">
-        <h1 className="text-2xl font-bold text-center text-pulse mb-6">
-          Create Account
-        </h1>
+    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+      <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md">
+        <h2 className="text-2xl font-bold text-center text-pulse mb-6">
+          Create Your Account
+        </h2>
 
-        <form onSubmit={handleSignup} className="space-y-4">
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email address"
-            required
-            className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-pulse"
-          />
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
-            required
-            className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-pulse"
-          />
-          <input
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="Confirm Password"
-            required
-            className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-pulse"
-          />
-
-          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-
+        <div className="flex justify-center gap-2 mb-6">
           <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-pulse text-white py-3 rounded font-semibold hover:bg-pulse/80 disabled:opacity-50"
+            onClick={() => setMode("password")}
+            className={`px-4 py-2 rounded-full ${
+              mode === "password"
+                ? "bg-pulse text-white"
+                : "border text-gray-600 hover:bg-gray-100"
+            }`}
           >
-            {loading ? "Creating account..." : "Sign Up"}
+            Password
           </button>
-        </form>
+          <button
+            onClick={() => setMode("magic")}
+            className={`px-4 py-2 rounded-full ${
+              mode === "magic"
+                ? "bg-pulse text-white"
+                : "border text-gray-600 hover:bg-gray-100"
+            }`}
+          >
+            Magic Link
+          </button>
+        </div>
 
-        <p className="text-center text-sm text-gray-600 mt-4">
+        {mode === "password" ? (
+          <form onSubmit={handleEmailSignup} className="space-y-4">
+            <input
+              type="email"
+              placeholder="Email address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse/50"
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse/50"
+            />
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-pulse text-white py-3 rounded-lg hover:bg-pulse/90 transition"
+            >
+              {loading ? "Creating Account..." : "Sign Up"}
+            </button>
+          </form>
+        ) : (
+          <form onSubmit={handleMagicLink} className="space-y-4">
+            <input
+              type="email"
+              placeholder="Enter your email for magic link"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse/50"
+            />
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-pulse text-white py-3 rounded-lg hover:bg-pulse/90 transition"
+            >
+              {loading ? "Sending Link..." : "Send Magic Link"}
+            </button>
+          </form>
+        )}
+
+        <div className="my-6 text-center text-gray-500">— or continue with —</div>
+
+        <div className="flex justify-center gap-4">
+          <button
+            onClick={() => handleOAuth("google")}
+            className="p-3 border rounded-lg hover:bg-gray-50 transition"
+          >
+            <img src="/google-icon.svg" alt="Google" className="w-6 h-6" />
+          </button>
+          <button
+            onClick={() => handleOAuth("github")}
+            className="p-3 border rounded-lg hover:bg-gray-50 transition"
+          >
+            <img src="/github-icon.svg" alt="GitHub" className="w-6 h-6" />
+          </button>
+          <button
+            onClick={() => handleOAuth("twitter")}
+            className="p-3 border rounded-lg hover:bg-gray-50 transition"
+          >
+            <img src="/twitter-icon.svg" alt="Twitter" className="w-6 h-6" />
+          </button>
+        </div>
+
+        <p className="mt-6 text-center text-sm text-gray-600">
           Already have an account?{" "}
-          <Link to="/login" className="text-pulse font-medium hover:underline">
-            Log In
-          </Link>
+          <a href="/login" className="text-pulse font-medium hover:underline">
+            Log in
+          </a>
         </p>
       </div>
     </div>
