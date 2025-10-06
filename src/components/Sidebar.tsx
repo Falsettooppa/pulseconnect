@@ -5,7 +5,7 @@ function Sidebar() {
     <aside className="w-64 bg-pulse text-white flex flex-col p-4 min-h-screen">
       <h2 className="text-2xl font-bold mb-6">PulseConnect</h2>
       <nav className="flex flex-col gap-3">
-        <Link to="/" className="hover:bg-pulse/80 p-2 rounded flex items-center gap-2">
+        <Link to="/dashboard" className="hover:bg-pulse/80 p-2 rounded flex items-center gap-2">
           <span>🏠</span> Home
         </Link>
         <Link to="/profile" className="hover:bg-pulse/80 p-2 rounded flex items-center gap-2">

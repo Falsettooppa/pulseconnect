@@ -2,34 +2,28 @@ import { useState, FormEvent } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { useNavigate, Link } from "react-router-dom";
 
-export default function Signup() {
+export default function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSignup = async (e: FormEvent) => {
+  const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
-
     try {
       setLoading(true);
-      const { data, error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) throw error;
 
-      alert("Signup successful! Please check your email for verification.");
-      navigate("/login");
+      alert("Login successful!");
+      navigate("/"); // Redirect to Dashboard
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -41,10 +35,10 @@ export default function Signup() {
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="bg-white shadow-lg rounded-2xl p-8 w-full max-w-md">
         <h1 className="text-2xl font-bold text-center text-pulse mb-6">
-          Create Account
+          Welcome Back
         </h1>
 
-        <form onSubmit={handleSignup} className="space-y-4">
+        <form onSubmit={handleLogin} className="space-y-4">
           <input
             type="email"
             value={email}
@@ -61,14 +55,6 @@ export default function Signup() {
             required
             className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-pulse"
           />
-          <input
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="Confirm Password"
-            required
-            className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-pulse"
-          />
 
           {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
@@ -77,14 +63,14 @@ export default function Signup() {
             disabled={loading}
             className="w-full bg-pulse text-white py-3 rounded font-semibold hover:bg-pulse/80 disabled:opacity-50"
           >
-            {loading ? "Creating account..." : "Sign Up"}
+            {loading ? "Signing in..." : "Log In"}
           </button>
         </form>
 
         <p className="text-center text-sm text-gray-600 mt-4">
-          Already have an account?{" "}
-          <Link to="/login" className="text-pulse font-medium hover:underline">
-            Log In
+          Don’t have an account?{" "}
+          <Link to="/signup" className="text-pulse font-medium hover:underline">
+            Sign Up
           </Link>
         </p>
       </div>
