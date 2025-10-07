@@ -1,73 +1,48 @@
-# React + TypeScript + Vite
+cat > README.md <<'EOF'
+# PulseConnect
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+PulseConnect — Social Media Dashboard (Cohort XIII Class_A)
 
-Currently, two official plugins are available:
+## What this repo contains
+A React + TypeScript + Vite social dashboard prototype:
+- Dashboard with posts (create, like, comment)
+- Authentication using Supabase (Email/password, Magic Link, OAuth)
+- Profile, Messages (placeholder), and Settings pages
+- Protected routes and session management
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Tech stack
+- React + TypeScript + Vite
+- TailwindCSS (utility styles)
+- Supabase (auth & planned DB)
+- Lucide icons
 
-## React Compiler
+## Quick start (local)
+1. Copy environment variables:
+   - Create `.env` at project root with:
+     ```
+     VITE_SUPABASE_URL=https://your-project-ref.supabase.co
+     VITE_SUPABASE_ANON_KEY=your-anon-key
+     ```
+2. Install and run:
+npm ci
+npm run dev
+3. Open the app (Vite prints the URL, e.g. http://localhost:5173)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Demo checklist (presenter)
+1. Show login page (`/login`) and signup options (Password, Magic Link, OAuth).  
+2. Sign up or sign in and show redirect to Dashboard.  
+3. Create a new post in the feed (top of feed) — show it appears instantly.  
+4. Click ❤️ to like a post; open comments and add a comment.  
+5. Show Profile page with editable fields.  
+6. Show Messages placeholder and Settings page.  
+7. Show logout and redirect to `/login`.
 
-## Expanding the ESLint configuration
+## Branch strategy
+- `main` — stable code for submission
+- `supabase-auth` — supabase & auth integration (merged to main for submission)
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Notes
+- This is a prototype and uses Supabase for auth; database persistence for posts is planned (next step).
+- For any issues, check the browser console and `npm run dev` terminal output.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+EOF
