@@ -1,6 +1,7 @@
 import { useState, FormEvent } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { useNavigate } from "react-router-dom";
+import { Mail, Github, Twitter, Globe } from "lucide-react"
 
 export default function Login() {
   const [email, setEmail] = useState("");
