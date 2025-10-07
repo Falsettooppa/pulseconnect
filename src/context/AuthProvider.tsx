@@ -1,47 +1,52 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { Session, User } from "@supabase/supabase-js";
-import { supabase } from "../lib/supabaseClient";
+import { useEffect, useState, createContext, useContext } from "react"
+import { supabase } from "../lib/supabaseClient"
 
-interface AuthContextType {
-  user: User | null;
-  loading: boolean;
-}
+const AuthContext = createContext<any>(null)
 
-const AuthContext = createContext<AuthContextType>({
-  user: null,
-  loading: true,
-});
-
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const [user, setUser] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Get current session on mount
-    const getSession = async () => {
-      const { data, error } = await supabase.auth.getSession();
-      if (error) console.error("Error fetching session:", error.message);
-      setUser(data.session?.user ?? null);
-      setLoading(false);
-    };
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      const currentUser = session?.user || null
+      setUser(currentUser)
 
-    getSession();
+      if (currentUser) {
+        // Check if profile exists
+        const { data: existingProfile } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", currentUser.id)
+          .single()
 
-    // Listen for authentication changes
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
+        // If not found, create one automatically
+        if (!existingProfile) {
+          await supabase.from("profiles").insert([
+            {
+              id: currentUser.id,
+              full_name: currentUser.user_metadata.full_name || "New User",
+              username:
+                currentUser.email?.split("@")[0] || `user_${currentUser.id}`,
+              email: currentUser.email,
+            },
+          ])
+        }
+      }
 
-    return () => {
-      listener.subscription.unsubscribe();
-    };
-  }, []);
+      setLoading(false)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
 
   return (
     <AuthContext.Provider value={{ user, loading }}>
       {children}
     </AuthContext.Provider>
-  );
-};
+  )
+}
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => useContext(AuthContext)
